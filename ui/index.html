@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+<meta charset="utf-8">
+<meta name="color-scheme" content="dark">
+<title>BIGNUM · 任意精度大数计算器</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="underlay" aria-hidden="true"></div>
+
+<header class="masthead">
+  <div class="brand">
+    <h1 class="brand__mark">BIGNUM</h1>
+    <p class="brand__sub">任意精度大数计算器 · 精确整数与高精度浮点</p>
+  </div>
+  <dl class="masthead__meta">
+    <div class="meta-cell"><dt>ENGINE</dt><dd>dashu · Rust</dd></div>
+    <div class="meta-cell"><dt>SHELL</dt><dd>WebView2</dd></div>
+    <div class="meta-cell"><dt>LOCAL</dt><dd class="meta-cell__clock" id="clock" aria-hidden="true">--:--:--</dd></div>
+  </dl>
+</header>
+
+<main class="deck">
+
+  <section class="panel panel--input" aria-labelledby="s-input">
+    <div class="panel__head">
+      <span class="panel__idx">01</span>
+      <h2 id="s-input">输入台</h2>
+      <span class="panel__rule"></span>
+      <span class="panel__hint">按键与键盘均可输入</span>
+    </div>
+
+    <div class="operand">
+      <div class="operand__head">
+        <label for="expr">表达式</label>
+        <span class="counter" id="expr-len">0 字符</span>
+      </div>
+      <input id="expr" class="exprfield" type="text" spellcheck="false" autocomplete="off" autocapitalize="off"
+             maxlength="4096" aria-describedby="syntax-help" placeholder="例如：10^3000000">
+    </div>
+
+    <div class="chips" id="examples" role="group" aria-label="示例表达式">
+      <span class="chips__label">示例</span>
+      <button class="chip" type="button" data-expr="10^3000000">10^3000000</button>
+      <button class="chip" type="button" data-expr="1000!">1000!</button>
+      <button class="chip" type="button" data-expr="6.02e23!">6.02e23!</button>
+      <button class="chip" type="button" data-expr="sum(k^2, k, 1, 1000)">求和</button>
+      <button class="chip" type="button" data-expr="diff(x^3, x, 2)">导数</button>
+      <button class="chip" type="button" data-expr="integ(e^(-x^2), x, -inf, inf)">积分</button>
+      <button class="chip" type="button" data-expr="ln(2)">ln 2</button>
+    </div>
+
+    <div class="keypad" id="keypad" role="group" aria-label="计算器键盘">
+      <button class="key" type="button" data-act="clear">C</button>
+      <button class="key" type="button" data-act="back" aria-label="退格删除">⌫</button>
+      <button class="key key--op" type="button" data-ins="(">(</button>
+      <button class="key key--op" type="button" data-ins=")">)</button>
+      <button class="key key--const" type="button" data-ins="π">π</button>
+      <button class="key key--fn" type="button" data-ins="ln(">ln</button>
+
+      <button class="key" type="button" data-ins="7">7</button>
+      <button class="key" type="button" data-ins="8">8</button>
+      <button class="key" type="button" data-ins="9">9</button>
+      <button class="key key--op" type="button" data-ins="/">÷</button>
+      <button class="key key--const" type="button" data-ins="e">e</button>
+      <button class="key key--fn" type="button" data-ins="log(">log</button>
+
+      <button class="key" type="button" data-ins="4">4</button>
+      <button class="key" type="button" data-ins="5">5</button>
+      <button class="key" type="button" data-ins="6">6</button>
+      <button class="key key--op" type="button" data-ins="*">×</button>
+      <button class="key key--op" type="button" data-ins="^">^</button>
+      <button class="key key--fn" type="button" data-ins="!">n!</button>
+
+      <button class="key" type="button" data-ins="1">1</button>
+      <button class="key" type="button" data-ins="2">2</button>
+      <button class="key" type="button" data-ins="3">3</button>
+      <button class="key key--op" type="button" data-ins="-">−</button>
+      <button class="key key--op" type="button" data-ins="%">mod</button>
+      <button class="key key--fn" type="button" data-ins="sum(k, k, 1, 10)">Σ</button>
+
+      <button class="key" type="button" data-ins="0">0</button>
+      <button class="key" type="button" data-ins=".">.</button>
+      <button class="key key--var" type="button" data-ins="k">k</button>
+      <button class="key key--op" type="button" data-ins="+">＋</button>
+      <button class="key key--var" type="button" data-ins="x">x</button>
+      <button class="key key--fn" type="button" data-ins="diff(x^2, x, 2)">d/dx</button>
+
+      <button class="key key--fn key--wide" type="button" data-ins="integ(x^2, x, 0, 1)">∫ 积分</button>
+
+      <button class="key key--eq" type="button" id="key-eq" data-act="equals" data-loading="false" aria-label="计算" aria-busy="false">
+        <span class="key__label">＝ 计算</span>
+      </button>
+    </div>
+
+    <div class="controls">
+      <label class="prec" for="precision">
+        <span class="prec__label">有效数字</span>
+        <input id="precision" class="prec__input" type="number" min="1" max="5000" step="1" value="60" inputmode="numeric">
+      </label>
+      <span class="shortcut">Enter / Ctrl + Enter 计算</span>
+    </div>
+
+    <p class="hintline" id="syntax-help">
+      求和 <b>sum(通项, 变量, 起点, 终点)</b>，如 sum(1/k^2, k, 1, 10000)；导数 <b>diff(函数, 变量, 求值点)</b>，如 diff(x^3, x, 2)；积分 <b>integ(函数, 变量, 下界, 上界)</b>，如 integ(e^(-x^2), x, -inf, inf)、integ(1/x^2, x, 1, inf)；对数 <b>ln(x)</b>、<b>log(x)</b>、<b>log(x, 底)</b>；常数 <b>e</b>、<b>π</b>、<b>inf</b>；阶乘 <b>n!</b>；取余 <b>%</b>。
+    </p>
+  </section>
+
+  <section class="panel panel--readout" aria-labelledby="s-readout">
+    <div class="panel__head">
+      <span class="panel__idx">02</span>
+      <h2 id="s-readout">结果台</h2>
+      <span class="panel__rule"></span>
+      <span class="panel__hint" id="status" role="status" aria-live="polite">待命</span>
+    </div>
+
+    <div class="readout__idle" id="idle">
+      <p class="idle__big">10<sup>3000000</sup></p>
+      <p class="idle__copy">输入 <b>10^3000000</b> 得 300 万位精确整数；<b>50000!</b> 得 21 万位阶乘；<b>sum(1/k^2, k, 1, 10000)</b> 逼近 π²/6；<b>diff(x^3, x, 2)</b> 求导得 12。</p>
+      <ul class="idle__facts">
+        <li>＋ － × ÷ mod ^ ! · 精确整数结果</li>
+        <li>÷ ln log 负指数 π e · 精确到指定有效数字</li>
+        <li>Σ 求和 · d/dx 导数 · ∫ 数值积分（支持 inf 无穷限）</li>
+      </ul>
+    </div>
+
+    <div class="readout__run" id="run" hidden>
+      <div class="run__elapsed"><span id="elapsed-num">0.00</span><small>s</small></div>
+      <div class="run__label" id="run-label">解析表达式</div>
+      <div class="run__track"><span class="run__bar" id="run-bar"></span></div>
+    </div>
+
+    <div class="readout__error" id="error" hidden role="alert" aria-atomic="true">
+      <p class="error__title">无法计算</p>
+      <p class="error__msg" id="error-msg"></p>
+    </div>
+
+    <div class="readout__result" id="result" hidden aria-live="polite">
+      <div class="result__headline">
+        <span class="result__digits" id="r-digits" aria-live="off">0</span>
+        <span class="result__unit" id="r-unit">位十进制整数</span>
+      </div>
+      <p class="result__sci" id="r-sci" hidden></p>
+      <p class="result__note" id="r-note" hidden></p>
+      <div class="result__number" id="r-number" tabindex="0" role="region" aria-label="结果正文" aria-live="off"></div>
+      <p class="result__more" id="r-more" hidden>⋯⋯ 中间省略 <span id="r-omitted">0</span> 位 ⋯⋯</p>
+      <div class="result__tail" id="r-tail" hidden aria-live="off"></div>
+      <div class="result__extras" id="r-extras" aria-live="off"></div>
+      <div class="result__foot">
+        <p class="result__receipt" id="receipt" role="status" hidden></p>
+        <div class="result__footrow">
+          <span class="result__meta" id="r-meta">—</span>
+          <div class="result__acts">
+            <button class="btn btn--quiet" type="button" id="copy-main" data-done="false"><span class="btn__label">复制全部</span></button>
+            <button class="btn btn--quiet" type="button" id="save-main"><span class="btn__label">导出 .txt</span></button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel panel--log" aria-labelledby="s-log">
+    <div class="panel__head">
+      <span class="panel__idx">03</span>
+      <h2 id="s-log">轨道记录</h2>
+      <span class="panel__rule"></span>
+      <span class="panel__hint">点击回填最近一次计算</span>
+    </div>
+    <ol class="loglist" id="loglist"></ol>
+    <p class="loglist__empty" id="log-empty">尚无记录。每次计算会在此留下航迹。</p>
+  </section>
+
+</main>
+
+<script src="app.js"></script>
+</body>
+</html>

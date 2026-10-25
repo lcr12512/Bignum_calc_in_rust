@@ -1,0 +1,35 @@
+[package]
+name = "bignumcalc"
+version = "0.1.0"
+edition = "2024"
+authors = ["lcr@deepseek"]
+license = "MIT"
+repository = "https://github.com/lcr12512/Bignum_calc_in_rust"
+description = "BIGNUM：基于 Rust + dashu 与 WebView2 的任意精度桌面大数计算器（Windows x64，静态 CRT 便携分发）"
+readme = "README.md"
+keywords = ["calculator", "bignum", "arbitrary-precision", "gui", "windows"]
+publish = false
+# Windows 构建图中 time / image / icu_* 要求 rustc >= 1.88（2026-10 实测）
+rust-version = "1.88"
+
+[dependencies]
+arboard = "3.6.1"
+dashu = "0.6.0"
+rfd = "0.17.2"
+serde_json = "1.0.151"
+tao = "0.37.0"
+wry = "0.57.0"
+
+[profile.dev]
+opt-level = 1
+
+[profile.dev.package."*"]
+opt-level = 3
+
+[profile.release]
+opt-level = 3
+lto = "thin"
+codegen-units = 1
+
+[patch.crates-io]
+cookie = { path = "vendor/cookie" }

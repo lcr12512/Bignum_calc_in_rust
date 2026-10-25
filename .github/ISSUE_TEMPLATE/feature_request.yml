@@ -1,0 +1,41 @@
+name: 功能建议
+description: 建议新的运算能力、交互改进或工程改进
+title: "[Feature] "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        欢迎提出想法！请先搜索现有 issue，避免重复。
+  - type: textarea
+    id: problem
+    attributes:
+      label: 你遇到的场景/问题
+      description: 为什么现有功能不够用？最好给出具体表达式或工作流
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: 建议的方案
+      description: 语法、界面或行为上你期望是什么样
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: 考虑过的替代方案
+    validations:
+      required: false
+  - type: dropdown
+    id: area
+    attributes:
+      label: 涉及范围
+      options:
+        - 计算引擎（表达式/精度/新函数）
+        - 界面与交互
+        - 性能
+        - 构建/打包/文档
+        - 其他
+    validations:
+      required: true

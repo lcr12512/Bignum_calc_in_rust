@@ -1,0 +1,17 @@
+# 统一行尾与二进制标记
+# 说明：GitHub 上以 LF 存储，检出到 Windows 时由 git 自动处理 .ps1 的 CRLF。
+* text=auto eol=lf
+
+# PowerShell 脚本在 Windows 上使用 CRLF 更稳妥
+*.ps1 text eol=crlf
+
+# 二进制文件（正常不会提交，但显式标记避免 diff 噪音）
+*.exe binary
+*.dll binary
+*.zip binary
+*.png binary
+*.ico binary
+*.pdb binary
+
+# vendor 目录是第三方原始副本，保持逐字节一致（不做行尾转换）
+vendor/** -text

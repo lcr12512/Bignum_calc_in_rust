@@ -1,0 +1,5 @@
+[toolchain]
+# 与 CI 中固定的版本保持一致；升级时同时修改 .github/workflows/ci.yml 与 release.yml。
+# edition = "2024" 至少要求 rustc 1.85，本项目实际在 1.99.0 上开发与验证。
+channel = "1.99.0"
+components = ["rustfmt", "clippy"]

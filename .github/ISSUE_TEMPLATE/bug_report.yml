@@ -1,0 +1,60 @@
+name: Bug 报告
+description: 报告计算错误、崩溃、界面或打包问题
+title: "[Bug] "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        感谢反馈！请尽量附上**可复现的表达式**和「有效数字」设置，这对定位问题最重要。
+        安全漏洞请勿在此公开，请按 `SECURITY.md` 私下报告。
+  - type: input
+    id: version
+    attributes:
+      label: 版本
+      description: 程序标题栏/Release 页面上的版本号，或 commit hash
+      placeholder: "v0.1.0 / 3f2a1c9"
+    validations:
+      required: true
+  - type: dropdown
+    id: os
+    attributes:
+      label: 操作系统
+      options:
+        - Windows 11
+        - Windows 10 22H2
+        - Windows 10 其他版本
+        - 其他（请在补充说明中写明）
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: 复现步骤
+      description: 输入了什么表达式、有效数字设为多少、点了什么
+      placeholder: |
+        1. 输入 10^3000000
+        2. 有效数字 60
+        3. 点击「＝ 计算」
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: 期望结果
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: 实际结果
+      description: 报错原文、错误截图；若崩溃请附 Windows 事件查看器中的异常信息
+    validations:
+      required: true
+  - type: textarea
+    id: extra
+    attributes:
+      label: 补充信息
+      description: 是否安装/升级过 WebView2、是否使用安全软件、是否首次启动等
+    validations:
+      required: false
